@@ -18,44 +18,62 @@ const generateToken = (id, role) => {
 router.post('/register', async (req, res) => {
   const { username, email, password, role } = req.body;
 
+  console.log('Registering user:', { username, email, role });
+
   // Validate request body
   if (!username || !email || !password || !role) {
+    console.log('Missing fields in registration');
     return res.status(400).json({ message: 'Please add all fields' });
   }
 
   // Check if user role is valid
   if (!['admin', 'vendor'].includes(role)) {
+    console.log('Invalid role specified:', role);
     return res.status(400).json({ message: 'Invalid role specified' });
   }
 
   // Check if user already exists
-  const userExists = await User.findOne({ email });
-  if (userExists) {
-    return res.status(400).json({ message: 'User already exists' });
+  try {
+    const userExists = await User.findOne({ email });
+    if (userExists) {
+      console.log('User already exists:', email);
+      return res.status(400).json({ message: 'User already exists' });
+    }
+  } catch (error) {
+    console.error('Error checking existing user:', error);
+    return res.status(500).json({ message: 'Error checking user existence' });
   }
 
   // Hash password
-  const salt = await bcrypt.genSalt(10);
-  const hashedPassword = await bcrypt.hash(password, salt);
+  try {
+    console.log('Hashing password');
+    const hashedPassword = await bcrypt.hash(password, 10);
+    console.log('Hashed password:', hashedPassword);
 
-  // Create user
-  const user = await User.create({
-    username,
-    email,
-    password: hashedPassword,
-    role,
-  });
-
-  if (user) {
-    res.status(201).json({
-      _id: user.id,
-      username: user.username,
-      email: user.email,
-      role: user.role,
-      token: generateToken(user._id, user.role),
+    // Create user
+    const user = await User.create({
+      username,
+      email,
+      password: hashedPassword,
+      role,
     });
-  } else {
-    res.status(400).json({ message: 'Invalid user data' });
+
+    if (user) {
+      console.log('User created successfully:', user);
+      res.status(201).json({
+        _id: user.id,
+        username: user.username,
+        email: user.email,
+        role: user.role,
+        token: generateToken(user._id, user.role),
+      });
+    } else {
+      console.log('Failed to create user');
+      res.status(400).json({ message: 'Invalid user data' });
+    }
+  } catch (error) {
+    console.error('Error hashing password or creating user:', error);
+    res.status(500).json({ message: 'Error hashing password' });
   }
 });
 
@@ -63,46 +81,37 @@ router.post('/register', async (req, res) => {
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
 
-  // Check for user email
-  const user = await User.findOne({ email });
+  // Check for user email and explicitly select the password
+  const user = await User.findOne({ email }).select('+password');
 
-   // If user with email does not exist
-   if (!user) {
+  // If user with email does not exist
+  if (!user) {
     return res.status(404).json({ message: 'User does not exist' });
   }
 
-  // If password does not match
-  if (!(await bcrypt.compare(password, user.password))) {
-    return res.status(401).json({ message: 'Incorrect password' });
+  // Log for debugging
+  console.log(`User from DB: ${user}`);
+  console.log(`User password from DB: ${user.password}`);
+  console.log(`Password from request: ${password}`);
+
+  // Ensure both passwords are defined
+  if (!password || !user.password) {
+    return res.status(400).json({ message: 'Password not provided or not set in user account' });
   }
 
-  if (user && (await bcrypt.compare(password, user.password))) {
-    res.json({
-      _id: user.id,
-      username: user.username,
-      email: user.email,
-      role: user.role,
-      token: generateToken(user._id, user.role),
-    });
-  } else {
-    res.status(401).json({ message: 'Invalid credentials' });
-  }
+// If password does not match
+if (!(await bcrypt.compare(password, user.password))) {
+  return res.status(401).json({ message: 'Incorrect password' });
+}
+
+// Successful login
+res.json({
+  _id: user.id,
+  username: user.username,
+  email: user.email,
+  role: user.role,
+  token: generateToken(user._id, user.role),
 });
-
-// Get user profile
-router.get('/profile', protect, async (req, res) => {
-  const user = await User.findById(req.user.id);
-
-  if (user) {
-    res.json({
-      _id: user.id,
-      username: user.username,
-      email: user.email,
-      role: user.role,
-    });
-  } else {
-    res.status(404).json({ message: 'User not found' });
-  }
 });
 
 module.exports = router;
