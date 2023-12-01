@@ -3,14 +3,14 @@ import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-d
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Sidebar from './components/sidebar/Sidebar';
 import Register from './components/users/Register';
-import useAuth from './services/useAuth';
+import userAuth from './services/userAuth/userAuth';
 import Login from './components/users/Login';
 import Profile from './components/users/Profile';
 import AdminHome from './components/homepage/AdminHome';
 import VendorHome from './components/homepage/VendorHome';
 
 const App = () => {
-  const isAuthenticated = useAuth();
+  const isAuthenticated = userAuth();
 
   // Logic to determine user role (placeholder)
   const userRole = 'admin'; // This should be dynamically determined

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-const useAuth = () => {
+const userAuth = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
@@ -11,4 +11,4 @@ const useAuth = () => {
   return isAuthenticated;
 };
 
-export default useAuth;
+export default userAuth;
