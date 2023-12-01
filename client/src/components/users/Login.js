@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import userService from '../../services/userService';
 
 const Login = () => {
   const [formData, setFormData] = useState({
-    email: '', // Changed from username to email to match your backend
+    email: '',
     password: '',
   });
   const [message, setMessage] = useState(null);
   const [isError, setIsError] = useState(false);
+  const navigate = useNavigate(); // Instance of useNavigate
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -20,9 +22,10 @@ const Login = () => {
       setMessage('Login successful.');
       setIsError(false);
       console.log(data);
-      // Redirect to dashboard after successful login
+
+      // Redirect to the homepage or dashboard after successful login
+      navigate('/'); // Replace '/' with the path to your homepage or dashboard
     } catch (error) {
-      // Check if the error response exists and has a data property
       const errorMessage = error.response && error.response.data && error.response.data.message
         ? error.response.data.message
         : 'An unexpected error occurred.';
