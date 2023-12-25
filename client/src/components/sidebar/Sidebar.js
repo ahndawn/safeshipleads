@@ -1,14 +1,16 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './Sidebar.css';
+import { AuthContext } from './../../services/AuthContext'; // Adjust the path as necessary
 
 const Sidebar = () => {
   const navigate = useNavigate();
-  const isLoggedIn = localStorage.getItem('user') !== null;
+  const { isAuthenticated, updateAuth } = useContext(AuthContext);
 
   const handleLogout = () => {
     localStorage.removeItem('user');
-    navigate('/login'); // Redirect to login page after logout
+    updateAuth(false);
+    navigate('/login');
   };
 
   return (
@@ -26,7 +28,7 @@ const Sidebar = () => {
             </Link>
           </li>
           <li className="nav-item">
-            {isLoggedIn ? (
+            {isAuthenticated ? (
               <button className="nav-link" onClick={handleLogout}>
                 Logout
               </button>

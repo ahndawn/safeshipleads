@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import userService from '../../services/userService';
+import { AuthContext } from '../../services/AuthContext'; // Adjust the path as necessary
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -9,7 +10,8 @@ const Login = () => {
   });
   const [message, setMessage] = useState(null);
   const [isError, setIsError] = useState(false);
-  const navigate = useNavigate(); // Instance of useNavigate
+  const navigate = useNavigate();
+  const { updateAuth } = useContext(AuthContext); // Use the context
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -23,8 +25,14 @@ const Login = () => {
       setIsError(false);
       console.log(data);
 
+      // Update global authentication state
+      updateAuth(true);
+
+      // Store user data in localStorage or manage it as needed
+      localStorage.setItem('user', JSON.stringify(data));
+
       // Redirect to the homepage or dashboard after successful login
-      navigate('/'); // Replace '/' with the path to your homepage or dashboard
+      navigate('/');
     } catch (error) {
       const errorMessage = error.response && error.response.data && error.response.data.message
         ? error.response.data.message

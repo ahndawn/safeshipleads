@@ -1,14 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useContext } from 'react';
+import { AuthContext } from './AuthContext'; // Adjust the path as necessary
 
-const userAuth = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-
-  useEffect(() => {
-    const user = localStorage.getItem('user');
-    setIsAuthenticated(!!user);
-  }, []);
-
+const useUserAuth = () => {
+  const { isAuthenticated } = useContext(AuthContext);
   return isAuthenticated;
 };
 
-export default userAuth;
+export default useUserAuth;
