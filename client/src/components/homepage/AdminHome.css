@@ -1,0 +1,15 @@
+.admin-dashboard {
+    /* Adjust padding and layout as needed */
+    padding: 20px;
+  }
+  
+  .chart-group {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 20px; /* Space between chart groups */
+  }
+  
+  .chart-container {
+    width: 45%; /* Adjust the width as needed */
+    /* Additional styling for the chart container */
+  }
