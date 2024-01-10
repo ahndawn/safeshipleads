@@ -1,22 +1,110 @@
-.admin-dashboard {
-    padding: 20px;
-  }
-  
-  .line-charts-container {
-    display: flex;
-    justify-content: space-around;
-    margin-bottom: 20px;
-  }
-  
-  .chart-container {
-    width: 45%; /* Adjust the width for line charts */
+
+.line-charts-container {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 20px;
+}
+
+.chart-container {
+  width: 45%; /* Adjust the width for line charts */
+  max-height: 500px;
+  margin: 0 10px; /* Add some space between the charts */
+  background-color: #ffffff; /* White background for charts */
+  border-radius: 15px; /* Rounded corners */
+  padding: 25px; /* Padding inside the chart container */
+  display: flex;
+  justify-content: center; /* Center chart in the container */
+  align-items: center; /* Align chart vertically */
+}
+
+.pie-chart-container{
     max-height: 300px;
+    width: fit-content;
     margin: 0 10px; /* Add some space between the charts */
-    margin-bottom: 20px;
+    background: white;
+    border-radius: 15px; 
+    padding: 10px; /* Padding inside the chart container */
+    display: flex;
+    justify-content: center; /* Center chart in the container */
+    align-items: center; /* Align chart vertically */
+}
+
+.chart-group {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 20px;
+}
+
+.charts-carousel {
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
   
-  .chart-group {
+  .charts-carousel {
+    display: flex;
+    align-items: center;
+    position: relative;
+  }
+  
+  .carousel-control {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 1000;
+  }
+  
+  .carousel-control.left {
+    left: 10px;
+  }
+  
+  .carousel-control.right {
+    right: 10px;
+  }
+  
+  .charts-container {
     display: flex;
     justify-content: space-around;
-    margin-bottom: 20px;
+    width: 100%;
+    padding: 20px; /* Adjust padding for arrow buttons */
+    border-radius: 15px; /* Rounded corners */
+    background-color: #f0f8ff; /* Light blue background */
+
   }
+
+  /* Custom CSS for Tables */
+.tables-container {
+  margin-top: 20px; /* Space above the table */
+  background-color: #f0f8ff; /* Light blue background */
+  border-radius: 15px; /* Rounded corners */
+  padding: 20px; /* Padding around the table */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+}
+
+.table {
+  width: 100%; /* Full width */
+  text-align: center; /* Center align text */
+  border-collapse: collapse; /* Collapse borders */
+}
+
+.table th, .table td {
+  padding: 10px; /* Padding in cells */
+  border: 1px solid #ddd; /* Border for cells */
+}
+
+.table th {
+  background-color: #e9f5fc; /* Lighter blue for headers */
+  color: #333; /* Dark text for contrast */
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+  background-color: #ffffff; /* White background for odd rows */
+}
+
+.table-hover tbody tr:hover {
+  background-color: #d1e7fd; /* Light blue background on hover */
+}

@@ -1,15 +1,31 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './Sidebar.css';
-import { AuthContext } from './../../services/AuthContext'; // Adjust the path as necessary
+import { AuthContext } from './../../services/AuthContext';
 
 const Sidebar = () => {
   const navigate = useNavigate();
   const { isAuthenticated, updateAuth } = useContext(AuthContext);
+  const [userRole, setUserRole] = useState(null);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      const userString = localStorage.getItem('user');
+      if (userString) {
+        try {
+          const user = JSON.parse(userString);
+          setUserRole(user ? user.role : null);
+        } catch (error) {
+          console.error("Error parsing user data from localStorage", error);
+        }
+      }
+    }
+  }, [isAuthenticated]);
 
   const handleLogout = () => {
     localStorage.removeItem('user');
     updateAuth(false);
+    setUserRole(null);
     navigate('/login');
   };
 
@@ -19,22 +35,24 @@ const Sidebar = () => {
         <ul className="nav flex-column">
           <li className="nav-item">
             <Link className="nav-link active" to="/">
-              Home
+              <i className="fas fa-home"></i> Home
             </Link>
           </li>
-          <li className="nav-item">
-            <Link className="nav-link" to="/register">
-              Register
-            </Link>
-          </li>
+          {userRole === 'admin' && (
+            <li className="nav-item">
+              <Link className="nav-link" to="/register">
+                <i className="fas fa-user-plus"></i> Create User
+              </Link>
+            </li>
+          )}
           <li className="nav-item">
             {isAuthenticated ? (
-              <button className="nav-link" onClick={handleLogout}>
-                Logout
+              <button className="nav-link btn btn-link" onClick={handleLogout}>
+                <i className="fas fa-sign-out-alt"></i> Logout
               </button>
             ) : (
               <Link className="nav-link" to="/login">
-                Login
+                <i className="fas fa-sign-in-alt"></i> Login
               </Link>
             )}
           </li>

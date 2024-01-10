@@ -2,43 +2,51 @@ import React, { useState, useEffect } from 'react';
 import { Pie, Bar, Line } from 'react-chartjs-2'; // Import Line component
 import Chart from 'chart.js/auto';
 import './AdminHome.css';
+import { FaArrowLeft, FaArrowRight } from 'react-icons/fa'; // Import arrow icons
 
 const AdminHome = () => {
   const headers = {
     'X-API-KEY': 'test_api_key',
   };
 
+  const [currentChart, setCurrentChart] = useState('exclusive');
+  
+  // Function to get today's date in a readable format
+  const todaysDate = () => {
+    const today = new Date();
+    return today.toLocaleDateString('en-US', { 
+      month: 'long', 
+      day: 'numeric' 
+    });
+  };
+
+  // Declare state and setter functions for all your data
   const [todaysExclusiveLeadsData, setTodaysExclusiveLeadsData] = useState([]);
   const [todaysSharedLeadsData, setTodaysSharedLeadsData] = useState([]);
   const [exclusiveLabelsData, setExclusiveLabelsData] = useState([]);
   const [sharedLabelsData, setSharedLabelsData] = useState([]);
-  const [exclusiveGronatData, setExclusiveGronatData] = useState([]);
-  const [sharedGronatData, setSharedGronatData] = useState([]);
+  const [exclusiveGronatData, setExclusiveGronatData] = useState([]); // Add this line
+  const [sharedGronatData, setSharedGronatData] = useState([]); // Add this line
+  const [combinedLeadsData, setCombinedLeadsData] = useState([]); // New state hook for combined data
+
 
   useEffect(() => {
-    // Fetch data for today's leads by label
-    fetch('http://localhost:5000/api/todays_exclusive_leads_by_label', { headers })
-      .then(response => response.json())
-      .then(data => setTodaysExclusiveLeadsData(data));
+    // Fetch data for today's leads by label and combined leads data
+    const fetchData = async () => {
+      const exclusiveResponse = await fetch('http://localhost:5000/api/todays_exclusive_leads_by_label', { headers });
+      const exclusiveData = await exclusiveResponse.json();
+      setTodaysExclusiveLeadsData(exclusiveData);
 
-    fetch('http://localhost:5000/api/todays_shared_leads_by_label', { headers })
-      .then(response => response.json())
-      .then(data => setTodaysSharedLeadsData(data));
+      const sharedResponse = await fetch('http://localhost:5000/api/todays_shared_leads_by_label', { headers });
+      const sharedData = await sharedResponse.json();
+      setTodaysSharedLeadsData(sharedData);
 
-    // Fetch data for exclusive and shared leads
-    fetch('http://localhost:5000/api/leads_by_label', { headers })
-      .then(response => response.json())
-      .then(data => {
-        setExclusiveLabelsData(data.exclusive_leads);
-        setSharedLabelsData(data.shared_leads);
-      });
+      const combinedResponse = await fetch('http://localhost:5000/api/todays_leads_data', { headers });
+      const combinedData = await combinedResponse.json();
+      setCombinedLeadsData(combinedData.combinedLeadsData);
+    };
 
-    fetch('http://localhost:5000/api/leads_by_gronat', { headers })
-      .then(response => response.json())
-      .then(data => {
-        setExclusiveGronatData(data.exclusive_leads);
-        setSharedGronatData(data.shared_leads);
-      });
+    fetchData();
   }, []);
 
   // Function to generate paler random colors
@@ -57,17 +65,6 @@ const AdminHome = () => {
     return rgb;
   }
 
-  // Prepare chart data
-  const prepareChartData = (data) => ({
-    labels: data.map(item => item.label || item.sent_to_gronat),
-    datasets: [{
-      data: data.map(item => item.count),
-      backgroundColor: data.map(() => generateRandomColor()),
-      borderColor: 'transparent',
-      borderWidth: .1
-    }]
-  });
-
   const prepareLineChartData = (data, label, color) => ({
     labels: data.map(item => item.label),
     datasets: [{
@@ -76,22 +73,73 @@ const AdminHome = () => {
       backgroundColor: color,
       borderColor: color,
       borderWidth: 2,
-      fill: false
+      fill: false    
     }]
   });
 
+  const renderTable = (data) => (
+    <table className="table table-striped table-hover">
+      <thead>
+        <tr>
+          <th>Timestamp</th>
+          <th>Vendor</th>
+          <th>Name</th>
+          <th>Origin Zip</th>
+          <th>Destination Zip</th>
+          <th>Move Size</th>
+          <th>Move Date</th>
+          <th>Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        {data.map((item, index) => (
+          <tr key={index}>
+            <td>{item.timestamp}</td>
+            <td>{item.label}</td>
+            <td>{item.firstname}</td>
+            <td>{item.ozip}</td>
+            <td>{item.dzip}</td>
+            <td>{item.movesize}</td>
+            <td>{item.movedte}</td>
+            <td>{item.notes}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+  
+
+    // Prepare chart data
+    const preparePieChartData = (data) => ({
+      labels: data.map(item => item.label),
+      datasets: [{
+        data: data.map(item => item.count),
+        backgroundColor: data.map(() => generateRandomColor()),
+        borderColor: 'transparent',
+        borderWidth: 1
+      }]
+    });
+
+    const handleNext = () => {
+      setCurrentChart(currentChart === 'exclusive' ? 'shared' : 'exclusive');
+    };
+  
+    const handlePrev = () => {
+      setCurrentChart(currentChart === 'exclusive' ? 'shared' : 'exclusive');
+    };
+
   const exclusiveLeadsLineChartData = prepareLineChartData(todaysExclusiveLeadsData, 'Exclusive Leads', 'rgba(54, 162, 235, 0.5)');
   const sharedLeadsLineChartData = prepareLineChartData(todaysSharedLeadsData, 'Shared Leads', 'rgba(255, 99, 132, 0.5)');
-  const exclusiveLabelsChartData = prepareChartData(exclusiveLabelsData);
-  const sharedLabelsChartData = prepareChartData(sharedLabelsData);
-  const exclusiveGronatChartData = prepareChartData(exclusiveGronatData);
-  const sharedGronatChartData = prepareChartData(sharedGronatData);
+  const exclusiveLeadsPieChartData = preparePieChartData(todaysExclusiveLeadsData);
+  const sharedLeadsPieChartData = preparePieChartData(todaysSharedLeadsData);
 
       // Chart options for displaying labels inside the chart
       const chartOptions = {
+        responsive: true, // Make the chart responsive
+        maintainAspectRatio: false, // Allows the chart to resize in height
         plugins: {
           legend: {
-            display: false // Set to false to hide the legend
+            display: false
           },
           tooltip: {
             callbacks: {
@@ -111,43 +159,44 @@ const AdminHome = () => {
       };
 
       return (
-        <div className="admin-dashboard">
-          <h1>Admin Dashboard</h1>
-          <p>Welcome to the Admin Dashboard. Here you can manage the application settings, users, and more.</p>
+        <div className="admin-dashboard-wrapper">
+          <div className="admin-dashboard">
+          <h2>Leads for {todaysDate()}</h2>
+    
+            <div className="charts-carousel">
+              <button onClick={handlePrev} className="carousel-control left">
+                <FaArrowLeft />
+              </button>
+    
+              <div className="charts-container">
+                {currentChart === 'exclusive' ? (
+                  <>
+                    <div className="chart-container">
+                      <Line data={exclusiveLeadsLineChartData} options={chartOptions} />
+                    </div>
+                    <div className="pie-chart-container">
+                      <Pie data={exclusiveLeadsPieChartData} options={chartOptions} />
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="chart-container">
+                      <Line data={sharedLeadsLineChartData} options={chartOptions} />
+                    </div>
+                    <div className="pie-chart-container">
+                      <Pie data={sharedLeadsPieChartData} options={chartOptions} />
+                    </div>
+                  </>
+                )}
+              </div>
+    
+              <button onClick={handleNext} className="carousel-control right">
+                <FaArrowRight />
+              </button>
+            </div>
 
-      <div className="line-charts-container">
-        <div className="chart-container">
-          <h2>Today's Exclusive Leads</h2>
-          <Line data={exclusiveLeadsLineChartData} options={chartOptions} />
-        </div>
-
-        <div className="chart-container">
-          <h2>Today's Shared Leads</h2>
-          <Line data={sharedLeadsLineChartData} options={chartOptions} />
-        </div>
-      </div>
-          
-          <div className="chart-group">
-            <div className="chart-container">
-              <h2>Exclusive Leads by Label</h2>
-              <Pie data={exclusiveLabelsChartData} options={chartOptions} />
-            </div>
-    
-            <div className="chart-container">
-              <h2>Exclusive Leads by Gronat Status</h2>
-              <Bar data={exclusiveGronatChartData} options={chartOptions} />
-            </div>
-          </div>
-    
-          <div className="chart-group">
-            <div className="chart-container">
-              <h2>Shared Leads by Label</h2>
-              <Pie data={sharedLabelsChartData} options={chartOptions} />
-            </div>
-    
-            <div className="chart-container">
-              <h2>Shared Leads by Gronat Status</h2>
-              <Bar data={sharedGronatChartData} options={chartOptions} />
+            <div className="tables-container">
+              {renderTable(combinedLeadsData)}
             </div>
           </div>
         </div>
