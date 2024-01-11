@@ -15,7 +15,8 @@
   }
 
   .nav-link:hover {
-    color: #0056b3; /* Darker shade for hover effect */
+    color: #003a77; 
+    text-shadow: #c4c4c4 1px 1px/* Darker shade for hover effect */
   }
   
   .nav-link i {
