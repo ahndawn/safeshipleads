@@ -27,7 +27,9 @@ const AdminHome = () => {
   const [sharedLabelsData, setSharedLabelsData] = useState([]);
   const [exclusiveGronatData, setExclusiveGronatData] = useState([]); // Add this line
   const [sharedGronatData, setSharedGronatData] = useState([]); // Add this line
-  const [combinedLeadsData, setCombinedLeadsData] = useState([]); // New state hook for combined data
+  const [combinedLeadsData, setCombinedLeadsData] = useState([]);
+  const [currentLeadsData, setCurrentLeadsData] = useState([]); 
+  const [isExclusive, setIsExclusive] = useState(true);// New state hook for combined data
 
 
   useEffect(() => {
@@ -41,13 +43,13 @@ const AdminHome = () => {
       const sharedData = await sharedResponse.json();
       setTodaysSharedLeadsData(sharedData);
 
-      const combinedResponse = await fetch('http://localhost:5000/api/todays_leads_data', { headers });
-      const combinedData = await combinedResponse.json();
-      setCombinedLeadsData(combinedData.combinedLeadsData);
+      const leadsResponse = await fetch(`http://localhost:5000/api/todays_leads_data?lead_type=${currentChart}`, { headers });
+    const leadsData = await leadsResponse.json();
+    setCurrentLeadsData(leadsData.leadsData);
     };
 
     fetchData();
-  }, []);
+  }, [currentChart]);
 
   // Function to generate paler random colors
   const generateRandomColor = () => {
@@ -120,13 +122,24 @@ const AdminHome = () => {
       }]
     });
 
-    const handleNext = () => {
-      setCurrentChart(currentChart === 'exclusive' ? 'shared' : 'exclusive');
-    };
   
-    const handlePrev = () => {
-      setCurrentChart(currentChart === 'exclusive' ? 'shared' : 'exclusive');
-    };
+    const handleNext = () => {
+      const newChart = currentChart === 'exclusive' ? 'shared' : 'exclusive';
+      setCurrentChart(newChart);
+      setCurrentLeadsData(newChart === 'exclusive' ? todaysExclusiveLeadsData : todaysSharedLeadsData);
+  };
+
+  const handlePrev = () => {
+    const newChart = currentChart === 'exclusive' ? 'shared' : 'exclusive';
+    setCurrentChart(newChart);
+    setCurrentLeadsData(newChart === 'exclusive' ? todaysExclusiveLeadsData : todaysSharedLeadsData);
+};
+
+const toggleLeadsData = () => {
+  setIsExclusive(!isExclusive); // Toggle between exclusive and shared leads
+  setCurrentChart(isExclusive ? 'shared' : 'exclusive');
+  setCurrentLeadsData(isExclusive ? todaysSharedLeadsData : todaysExclusiveLeadsData);
+};
 
   const exclusiveLeadsLineChartData = prepareLineChartData(todaysExclusiveLeadsData, 'Exclusive Leads', 'rgba(54, 162, 235, 0.5)');
   const sharedLeadsLineChartData = prepareLineChartData(todaysSharedLeadsData, 'Shared Leads', 'rgba(255, 99, 132, 0.5)');
@@ -135,8 +148,8 @@ const AdminHome = () => {
 
       // Chart options for displaying labels inside the chart
       const chartOptions = {
-        responsive: true, // Make the chart responsive
-        maintainAspectRatio: false, // Allows the chart to resize in height
+        responsive: true,
+        maintainAspectRatio: false,
         plugins: {
           legend: {
             display: false
@@ -144,14 +157,10 @@ const AdminHome = () => {
           tooltip: {
             callbacks: {
               label: function(context) {
-                let label = context.label || '';
-                if (label) {
-                  label += ': ';
-                }
-                if (context.parsed.y !== null) {
-                  label += context.parsed.y;
-                }
-                return label;
+                // Ensure that label and value are correctly referenced
+                const label = context.label || '';
+                const value = context.raw; // Use 'raw' to get the actual value
+                return `${label}: ${value}`;
               }
             }
           }
@@ -161,12 +170,21 @@ const AdminHome = () => {
       return (
         <div className="admin-dashboard-wrapper">
           <div className="admin-dashboard">
-          <h2>Leads for {todaysDate()}</h2>
+          <h2>{isExclusive ? "Exclusive" : "Shared"} Leads for {todaysDate()}</h2>
     
-            <div className="charts-carousel">
-              <button onClick={handlePrev} className="carousel-control left">
-                <FaArrowLeft />
-              </button>
+          <div className="charts-carousel">
+          {isExclusive && (
+            <button onClick={toggleLeadsData} className="carousel-control right">
+              <FaArrowRight />
+              <span className="button-label">Shared</span>
+            </button>
+          )}
+          {!isExclusive && (
+            <button onClick={toggleLeadsData} className="carousel-control left">
+              <FaArrowLeft />
+              <span className="button-label">Exclusive</span>
+            </button>
+          )}
     
               <div className="charts-container">
                 {currentChart === 'exclusive' ? (
@@ -189,14 +207,10 @@ const AdminHome = () => {
                   </>
                 )}
               </div>
-    
-              <button onClick={handleNext} className="carousel-control right">
-                <FaArrowRight />
-              </button>
             </div>
 
             <div className="tables-container">
-              {renderTable(combinedLeadsData)}
+            {renderTable(currentLeadsData)}
             </div>
           </div>
         </div>

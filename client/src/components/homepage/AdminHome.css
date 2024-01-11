@@ -6,27 +6,23 @@
 }
 
 .chart-container {
-  width: 45%; /* Adjust the width for line charts */
-  max-height: 500px;
-  margin: 0 10px; /* Add some space between the charts */
+  width: 45vw; /* Adjust the width for line charts *//* Add some space between the charts */
   background-color: #ffffff; /* White background for charts */
   border-radius: 15px; /* Rounded corners */
-  padding: 25px; /* Padding inside the chart container */
+  padding-top: 25px; 
+  padding-bottom: 25px;/* Padding inside the chart container */
   display: flex;
   justify-content: center; /* Center chart in the container */
   align-items: center; /* Align chart vertically */
+  margin-left: 1.5vw;
 }
 
 .pie-chart-container{
-    max-height: 300px;
-    width: fit-content;
-    margin: 0 10px; /* Add some space between the charts */
-    background: white;
-    border-radius: 15px; 
-    padding: 10px; /* Padding inside the chart container */
+    width: 25vw; /* Add some space between the charts */ /* Padding inside the chart container */
     display: flex;
     justify-content: center; /* Center chart in the container */
     align-items: center; /* Align chart vertically */
+    margin: -10px;
 }
 
 .chart-group {
@@ -59,11 +55,16 @@
   }
   
   .carousel-control.left {
-    left: 10px;
+    left: .2vw;
   }
   
   .carousel-control.right {
-    right: 10px;
+    right: 1vw;
+  }
+
+  .button-label {
+    display: block;
+    font-size: .8vw; /* Smaller font size for the label *//* Space between icon and label */
   }
   
   .charts-container {
@@ -73,7 +74,7 @@
     padding: 20px; /* Adjust padding for arrow buttons */
     border-radius: 15px; /* Rounded corners */
     background-color: #f0f8ff; /* Light blue background */
-
+    height:20vw
   }
 
   /* Custom CSS for Tables */
@@ -97,7 +98,7 @@
 }
 
 .table th {
-  background-color: #e9f5fc; /* Lighter blue for headers */
+  background-color: #ffffff; /* Lighter blue for headers */
   color: #333; /* Dark text for contrast */
 }
 
