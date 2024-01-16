@@ -27,6 +27,32 @@
   .main-content {
     margin-left: 200px; /* Adjust this value based on the width of your sidebar */
   }
+  .highlighted {
+    background-color: #e4eef6; /* Highlight color for active dropdown */
+  }
+  
+  .dropdown-menu {
+    list-style: none;
+    padding-left: 30px; /* Indent dropdown items */
+    display: none; /* Initially hidden */
+    position: static;
+    background-color: transparent; 
+    border: none;/* Ensure normal document flow */
+  }
+  
+  .nav-item .highlighted + .dropdown-menu.show {
+    display: block; /* Show dropdown */
+  }
+  
+  .dropdown-menu li a {
+    color: #007bff;
+    text-decoration: none; /* Spacing for dropdown items */
+  }
+
+  .dropdown-menu li a:hover {
+    color: #003a77; 
+    text-shadow: #c4c4c4 1px 1px/* Darker shade for hover effect */
+  }
   
   /* Optional: Adjust the width of the sidebar */
   @media (min-width: 768px) {
