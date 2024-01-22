@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const pool = require('../../db'); // Adjust the path as needed
+const { mainPool } = require('../../db');
 const { protect } = require('../middleware/authMiddleware'); // Import the middleware
 
 // Handler to get leads for a vendor
@@ -8,7 +8,7 @@ const getVendorLeads = async (req, res) => {
     try {
         const vendorUsername = req.user.username; // Accessing username from the user object
         const query = 'SELECT * FROM lead WHERE label = $1';
-        const { rows } = await pool.query(query, [vendorUsername]);
+        const { rows } = await mainPool.query(query, [vendorUsername]); // Use mainPool for querying
 
         // Log the data only if it's not empty
         if (rows.length > 0) {
