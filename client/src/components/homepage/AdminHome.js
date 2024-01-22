@@ -3,13 +3,14 @@ import { Pie, Bar, Line } from 'react-chartjs-2'; // Import Line component
 import Chart from 'chart.js/auto';
 import './AdminHome.css';
 import { FaArrowLeft, FaArrowRight } from 'react-icons/fa'; // Import arrow icons
+import { Pagination } from 'react-bootstrap';
 
 const AdminHome = () => {
-  const headers = {
-    'X-API-KEY': 'test_api_key',
-  };
 
   const [currentChart, setCurrentChart] = useState('exclusive');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [leadsPerPage] = useState(20); // Adjust as needed
+  const [totalPages, setTotalPages] = useState(0);
   
   // Function to get today's date in a readable format
   const todaysDate = () => {
@@ -25,31 +26,108 @@ const AdminHome = () => {
   const [todaysSharedLeadsData, setTodaysSharedLeadsData] = useState([]);
   const [exclusiveLabelsData, setExclusiveLabelsData] = useState([]);
   const [sharedLabelsData, setSharedLabelsData] = useState([]);
-  const [exclusiveGronatData, setExclusiveGronatData] = useState([]); // Add this line
-  const [sharedGronatData, setSharedGronatData] = useState([]); // Add this line
+  const [exclusiveGronatData, setExclusiveGronatData] = useState({ labels: [], datasets: [{ data: [] }] }); // Add this line
+  const [sharedGronatData, setSharedGronatData] = useState({ labels: [], datasets: [{ data: [] }] });; // Add this line
   const [combinedLeadsData, setCombinedLeadsData] = useState([]);
   const [currentLeadsData, setCurrentLeadsData] = useState([]); 
   const [isExclusive, setIsExclusive] = useState(true);// New state hook for combined data
+  
 
 
-  useEffect(() => {
-    // Fetch data for today's leads by label and combined leads data
+
+   // Retrieve and parse user data from local storage
+   const userString = localStorage.getItem('user');
+   const user = userString ? JSON.parse(userString) : null;
+
+    // Function to aggregate data for the charts
+const aggregateDataByLabel = (data) => {
+  const labelCounts = data.reduce((acc, lead) => {
+    acc[lead.label] = (acc[lead.label] || 0) + 1;
+    return acc;
+  }, {});
+  return labelCounts;
+};
+
+// Function to prepare data for the pie chart
+const preparePieChartData = (aggregatedData) => {
+  return {
+    labels: Object.keys(aggregatedData),
+    datasets: [{
+      data: Object.values(aggregatedData),
+      backgroundColor: Object.keys(aggregatedData).map(() => generateRandomColor()),
+      borderColor: 'transparent',
+      borderWidth: 1
+    }]
+  };
+};
+
+// Function to prepare data for the line chart
+const prepareLineChartData = (aggregatedData, label) => {
+  return {
+    labels: Object.keys(aggregatedData),
+    datasets: [{
+      label: label,
+      data: Object.values(aggregatedData),
+      backgroundColor: 'rgba(54, 162, 235, 0.5)',
+      borderColor: 'rgba(54, 162, 235, 1)',
+      borderWidth: 2,
+      fill: false
+    }]
+  };
+};
+
+   
+ 
+   useEffect(() => {
     const fetchData = async () => {
-      const exclusiveResponse = await fetch('http://localhost:5000/api/todays_exclusive_leads_by_label', { headers });
-      const exclusiveData = await exclusiveResponse.json();
-      setTodaysExclusiveLeadsData(exclusiveData);
+      if (!user || !user.token) {
+        console.log('Waiting for user authentication...');
+        return;
+      }
+  
+      try {
+        const headers = {
+          'Authorization': `Bearer ${user.token}`
+        };
+  
+        // Fetch data based on currentChart
+        const response = await fetch(`http://localhost:4000/api/admin/${currentChart}-leads`, { headers });
+        const data = await response.json();
+        setCurrentLeadsData(data);
+        setTotalPages(Math.ceil(data.length / leadsPerPage));
+  
+        const aggregatedData = aggregateDataByLabel(data);
+      const pieChartData = preparePieChartData(aggregatedData);
+      const lineChartData = prepareLineChartData(aggregatedData, `${currentChart.charAt(0).toUpperCase() + currentChart.slice(1)} Leads`);
 
-      const sharedResponse = await fetch('http://localhost:5000/api/todays_shared_leads_by_label', { headers });
-      const sharedData = await sharedResponse.json();
-      setTodaysSharedLeadsData(sharedData);
+      if (currentChart === 'exclusive') {
+        setExclusiveGronatData(pieChartData);
+        setExclusiveLabelsData(lineChartData);
+      } else {
+        setSharedGronatData(pieChartData);
+        setSharedLabelsData(lineChartData);
+      }
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
 
-      const leadsResponse = await fetch(`http://localhost:5000/api/todays_leads_data?lead_type=${currentChart}`, { headers });
-    const leadsData = await leadsResponse.json();
-    setCurrentLeadsData(leadsData.leadsData);
-    };
+  fetchData();
+}, [currentChart, leadsPerPage]);
 
-    fetchData();
-  }, [currentChart]);
+ // Determine which chart data to use based on currentChart
+ const pieChartData = currentChart === 'exclusive' ? exclusiveGronatData : sharedGronatData;
+ const lineChartData = currentChart === 'exclusive' ? exclusiveLabelsData : sharedLabelsData;
+
+
+
+  // Pagination logic
+  const indexOfLastLead = currentPage * leadsPerPage;
+  const indexOfFirstLead = indexOfLastLead - leadsPerPage;
+  const currentLeads = currentLeadsData.slice(indexOfFirstLead, indexOfLastLead);
+
+  const paginate = pageNumber => setCurrentPage(pageNumber);
+ 
 
   // Function to generate paler random colors
   const generateRandomColor = () => {
@@ -67,60 +145,71 @@ const AdminHome = () => {
     return rgb;
   }
 
-  const prepareLineChartData = (data, label, color) => ({
-    labels: data.map(item => item.label),
-    datasets: [{
-      label: label,
-      data: data.map(item => item.count),
-      backgroundColor: color,
-      borderColor: color,
-      borderWidth: 2,
-      fill: false    
-    }]
-  });
 
-  const renderTable = (data) => (
-    <table className="table table-striped table-hover">
-      <thead>
-        <tr>
-          <th>Timestamp</th>
-          <th>Vendor</th>
-          <th>Name</th>
-          <th>Origin Zip</th>
-          <th>Destination Zip</th>
-          <th>Move Size</th>
-          <th>Move Date</th>
-          <th>Notes</th>
-        </tr>
-      </thead>
-      <tbody>
-        {data.map((item, index) => (
-          <tr key={index}>
-            <td>{item.timestamp}</td>
-            <td>{item.label}</td>
-            <td>{item.firstname}</td>
-            <td>{item.ozip}</td>
-            <td>{item.dzip}</td>
-            <td>{item.movesize}</td>
-            <td>{item.movedte}</td>
-            <td>{item.notes}</td>
+  const renderTable = (data) => {
+    if (!Array.isArray(data)) {
+      console.error('Expected an array for table data, received:', data);
+      return <div>No data available.</div>;
+    }
+
+    return (
+      <table className="table table-striped table-hover">
+        <thead>
+          <tr>
+            <th>Timestamp</th>
+            <th>Vendor</th>
+            <th>Name</th>
+            <th>Origin Zip</th>
+            <th>Destination Zip</th>
+            <th>Move Size</th>
+            <th>Move Date</th>
+            <th>Notes</th>
           </tr>
-        ))}
-      </tbody>
-    </table>
-  );
-  
+        </thead>
+        <tbody>
+          {data.map((item, index) => (
+            <tr key={index}>
+              <td>{item.timestamp}</td>
+              <td>{item.label}</td>
+              <td>{item.firstname}</td>
+              <td>{item.ozip}</td>
+              <td>{item.dzip}</td>
+              <td>{item.movesize}</td>
+              <td>{item.movedte}</td>
+              <td>{item.notes}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    );
+  };
 
-    // Prepare chart data
-    const preparePieChartData = (data) => ({
-      labels: data.map(item => item.label),
-      datasets: [{
-        data: data.map(item => item.count),
-        backgroundColor: data.map(() => generateRandomColor()),
-        borderColor: 'transparent',
-        borderWidth: 1
-      }]
-    });
+  // Determine the range of pages to display
+  const maxPagesToShow = 5;
+  const halfMaxPages = Math.floor(maxPagesToShow / 2);
+  const startPage = Math.max(1, currentPage - halfMaxPages);
+  const endPage = Math.min(totalPages, currentPage + halfMaxPages);
+
+  const renderPagination = () => {
+    const pages = [];
+    for (let i = startPage; i <= endPage; i++) {
+      pages.push(
+        <Pagination.Item key={i} active={i === currentPage} onClick={() => paginate(i)}>
+          {i}
+        </Pagination.Item>
+      );
+    }
+
+    return (
+      <Pagination>
+        <Pagination.First onClick={() => paginate(1)} disabled={currentPage === 1} />
+        <Pagination.Prev onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1} />
+        {pages}
+        <Pagination.Next onClick={() => paginate(currentPage + 1)} disabled={currentPage === totalPages} />
+        <Pagination.Last onClick={() => paginate(totalPages)} disabled={currentPage === totalPages} />
+      </Pagination>
+    );
+  };
 
   
     const handleNext = () => {
@@ -166,6 +255,8 @@ const toggleLeadsData = () => {
           }
         }
       };
+      console.log('Pie Chart Data:', pieChartData);
+      console.log('Line Chart Data:', lineChartData);
 
       return (
         <div className="admin-dashboard-wrapper">
@@ -187,31 +278,44 @@ const toggleLeadsData = () => {
           )}
     
               <div className="charts-container">
-                {currentChart === 'exclusive' ? (
-                  <>
-                    <div className="chart-container">
-                      <Line data={exclusiveLeadsLineChartData} options={chartOptions} />
-                    </div>
-                    <div className="pie-chart-container">
-                      <Pie data={exclusiveLeadsPieChartData} options={chartOptions} />
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <div className="chart-container">
-                      <Line data={sharedLeadsLineChartData} options={chartOptions} />
-                    </div>
-                    <div className="pie-chart-container">
-                      <Pie data={sharedLeadsPieChartData} options={chartOptions} />
-                    </div>
-                  </>
-                )}
+              {currentChart === 'exclusive' ? (
+            <>
+              <div className="chart-container">
+              {lineChartData && lineChartData.datasets && lineChartData.datasets.length > 0 && (
+  <Line data={lineChartData} options={chartOptions} />
+)}
+              </div>
+              <div className="pie-chart-container">
+              {pieChartData && pieChartData.datasets && pieChartData.datasets.length > 0 && (
+  <Pie data={pieChartData} options={chartOptions} />
+)}
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="chart-container">
+              {lineChartData && lineChartData.datasets && lineChartData.datasets.length > 0 && (
+  <Line data={lineChartData} options={chartOptions} />
+)}
+              </div>
+              <div className="pie-chart-container">
+              {pieChartData && pieChartData.datasets && pieChartData.datasets.length > 0 && (
+  <Pie data={pieChartData} options={chartOptions} />
+)}
+              </div>
+            </>
+          )}
               </div>
             </div>
 
             <div className="tables-container">
-            {renderTable(currentLeadsData)}
-            </div>
+          {renderTable(currentLeads)}
+        </div>
+        <br></br>
+        <div className="d-flex justify-content-center">
+          {renderPagination()}
+        </div>
+        <br></br>
           </div>
         </div>
       );

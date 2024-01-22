@@ -3,7 +3,8 @@ import React, { createContext, useState, useEffect } from 'react';
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  // Initialize isAuthenticated based on localStorage
+  const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('user'));
 
   useEffect(() => {
     const user = localStorage.getItem('user');
