@@ -122,7 +122,10 @@ const paginate = pageNumber => setCurrentPage(pageNumber);
 
   // Render function for Line and Pie charts
   const renderCharts = () => {
-    // Only render charts if data is available
+    if (isLoading) {
+      return <div>Loading chart data...</div>;
+    }
+  
     if (lineChartData.datasets.length > 0 && pieChartData.datasets.length > 0) {
       return (
         <div className="charts-container">
@@ -135,6 +138,7 @@ const paginate = pageNumber => setCurrentPage(pageNumber);
         </div>
       );
     }
+  
     return null; // Return null if data is not ready
   };
 
