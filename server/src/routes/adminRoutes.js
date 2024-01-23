@@ -55,6 +55,30 @@ const getCombinedLeads = async (req, res) => {
     }
 };
 
+// Handler to get all vendors
+const getVendors = async (req, res) => {
+    try {
+        // Query to get distinct labels from both databases
+        const exclusiveVendorsQuery = 'SELECT DISTINCT label FROM lead';
+        const sharedVendorsQuery = 'SELECT DISTINCT label FROM lead';
+
+        // Fetch data from both databases
+        const exclusiveVendorsResult = await mainPool.query(exclusiveVendorsQuery);
+        const sharedVendorsResult = await sharedPool.query(sharedVendorsQuery);
+
+        // Combine and deduplicate the results
+        const exclusiveVendors = exclusiveVendorsResult.rows.map(row => row.label);
+        const sharedVendors = sharedVendorsResult.rows.map(row => row.label);
+        const allVendors = [...new Set([...exclusiveVendors, ...sharedVendors])];
+
+        res.json(allVendors);
+    } catch (error) {
+        console.error("Error fetching vendors:", error);
+        res.status(500).json({ message: 'Server error occurred while fetching vendors', error: error.toString() });
+    }
+};
+
+router.get('/vendors', protect, getVendors);
 router.get('/exclusive-leads', protect, getExclusiveLeads);
 router.get('/shared-leads', protect, getSharedLeads);
 router.get('/combined-leads', protect, getCombinedLeads);

@@ -3,26 +3,31 @@ const router = express.Router();
 const { mainPool } = require('../../db');
 const { protect } = require('../middleware/authMiddleware'); // Import the middleware
 
-// Handler to get leads for a vendor
 const getVendorLeads = async (req, res) => {
     try {
-        const vendorUsername = req.user.username; // Accessing username from the user object
-        const query = 'SELECT * FROM lead WHERE label = $1';
-        const { rows } = await mainPool.query(query, [vendorUsername]); // Use mainPool for querying
+        let vendorLabel;
 
-        // Log the data only if it's not empty
-        if (rows.length > 0) {
-            console.log(`Data fetched for user '${vendorUsername}':`, rows);
+        // Check if the user is an admin
+        if (req.user.role === 'admin' && req.query.vendorLabel) {
+            // If admin, use the vendor label provided in the query parameter
+            vendorLabel = req.query.vendorLabel;
         } else {
-            console.log(`No data found for user '${vendorUsername}'`);
+            // If not admin, use the username from the user object
+            vendorLabel = req.user.username;
+        }
+
+        const query = 'SELECT * FROM lead WHERE label = $1';
+        const { rows } = await mainPool.query(query, [vendorLabel]);
+
+        if (rows.length > 0) {
+            console.log(`Data fetched for vendor '${vendorLabel}':`, rows);
+        } else {
+            console.log(`No data found for vendor '${vendorLabel}'`);
         }
 
         res.json(rows);
     } catch (error) {
-        const vendorUsername = req.user.username;
-        console.log(`No data found for user '${vendorUsername}'`);
         console.error("Error fetching vendor leads:", error);
-        // Send a JSON response in case of an error
         res.status(500).json({ message: 'Server error occurred while fetching vendor leads', error: error.toString() });
     }
 };
