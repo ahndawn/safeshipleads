@@ -24,7 +24,7 @@ const Profile = () => {
       {profile ? (
         <div>
           <h1>{profile.username}</h1>
-          {/* Display other user details */}
+         
         </div>
       ) : (
         <p>Loading...</p>

@@ -67,7 +67,7 @@ const Sidebar = () => {
               </Link>
             </li>
               <li className="nav-item">
-                <Link className="nav-link" to="/vendor-management">
+                <Link className="nav-link" to="/vendors">
                   <i className="fas fa-users"></i> Vendor Management
                 </Link>
               </li>

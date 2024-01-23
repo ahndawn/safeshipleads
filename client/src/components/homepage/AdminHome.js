@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { Pie, Bar, Line } from 'react-chartjs-2'; // Import Line component
+import { Pie, Bar, Line } from 'react-chartjs-2'; 
 import Chart from 'chart.js/auto';
 import './AdminHome.css';
-import { FaArrowLeft, FaArrowRight } from 'react-icons/fa'; // Import arrow icons
+import { FaArrowLeft, FaArrowRight } from 'react-icons/fa'; 
 import { Pagination } from 'react-bootstrap';
 
 const AdminHome = () => {
 
   const [currentChart, setCurrentChart] = useState('exclusive');
   const [currentPage, setCurrentPage] = useState(1);
-  const [leadsPerPage] = useState(20); // Adjust as needed
+  const [leadsPerPage] = useState(20); 
   const [totalPages, setTotalPages] = useState(0);
   
   // Function to get today's date in a readable format
@@ -26,11 +26,11 @@ const AdminHome = () => {
   const [todaysSharedLeadsData, setTodaysSharedLeadsData] = useState([]);
   const [exclusiveLabelsData, setExclusiveLabelsData] = useState([]);
   const [sharedLabelsData, setSharedLabelsData] = useState([]);
-  const [exclusiveGronatData, setExclusiveGronatData] = useState({ labels: [], datasets: [{ data: [] }] }); // Add this line
-  const [sharedGronatData, setSharedGronatData] = useState({ labels: [], datasets: [{ data: [] }] });; // Add this line
+  const [exclusiveGronatData, setExclusiveGronatData] = useState({ labels: [], datasets: [{ data: [] }] });
+  const [sharedGronatData, setSharedGronatData] = useState({ labels: [], datasets: [{ data: [] }] });;
   const [combinedLeadsData, setCombinedLeadsData] = useState([]);
   const [currentLeadsData, setCurrentLeadsData] = useState([]); 
-  const [isExclusive, setIsExclusive] = useState(true);// New state hook for combined data
+  const [isExclusive, setIsExclusive] = useState(true);
   
 
 
@@ -282,26 +282,26 @@ const toggleLeadsData = () => {
             <>
               <div className="chart-container">
               {lineChartData && lineChartData.datasets && lineChartData.datasets.length > 0 && (
-  <Line data={lineChartData} options={chartOptions} />
-)}
+                <Line data={lineChartData} options={chartOptions} />
+              )}
               </div>
               <div className="pie-chart-container">
               {pieChartData && pieChartData.datasets && pieChartData.datasets.length > 0 && (
-  <Pie data={pieChartData} options={chartOptions} />
-)}
+                <Pie data={pieChartData} options={chartOptions} />
+              )}
               </div>
             </>
           ) : (
             <>
               <div className="chart-container">
               {lineChartData && lineChartData.datasets && lineChartData.datasets.length > 0 && (
-  <Line data={lineChartData} options={chartOptions} />
-)}
+                <Line data={lineChartData} options={chartOptions} />
+              )}
               </div>
               <div className="pie-chart-container">
               {pieChartData && pieChartData.datasets && pieChartData.datasets.length > 0 && (
-  <Pie data={pieChartData} options={chartOptions} />
-)}
+                <Pie data={pieChartData} options={chartOptions} />
+              )}
               </div>
             </>
           )}

@@ -6,22 +6,22 @@
   }
   
   .chart-container {
-    width: 45vw; /* Adjust the width for line charts *//* Add some space between the charts */
-    background-color: #ffffff; /* White background for charts */
-    border-radius: 15px; /* Rounded corners */
+    width: 45vw; 
+    background-color: #ffffff; 
+    border-radius: 15px;
     padding-top: 25px; 
-    padding-bottom: 25px;/* Padding inside the chart container */
+    padding-bottom: 25px;
     display: flex;
-    justify-content: center; /* Center chart in the container */
-    align-items: center; /* Align chart vertically */
+    justify-content: center; 
+    align-items: center;
     margin-left: 1.5vw;
   }
   
   .pie-chart-container{
-      width: 25vw; /* Add some space between the charts */ /* Padding inside the chart container */
+      width: 25vw;
       display: flex;
-      justify-content: center; /* Center chart in the container */
-      align-items: center; /* Align chart vertically */
+      justify-content: center; 
+      align-items: center; 
       margin: -10px;
   }
   
@@ -64,48 +64,48 @@
   
     .button-label {
       display: block;
-      font-size: .8vw; /* Smaller font size for the label *//* Space between icon and label */
+      font-size: .8vw; 
     }
     
     .charts-container {
       display: flex;
       justify-content: space-around;
       width: 100%;
-      padding: 20px; /* Adjust padding for arrow buttons */
-      border-radius: 15px; /* Rounded corners */
-      background-color: #f0f8ff; /* Light blue background */
+      padding: 20px; 
+      border-radius: 15px; 
+      background-color: #f0f8ff;
       height:20vw
     }
   
     /* Custom CSS for Tables */
   .tables-container {
-    margin-top: 20px; /* Space above the table */
-    background-color: #f0f8ff; /* Light blue background */
-    border-radius: 15px; /* Rounded corners */
-    padding: 20px; /* Padding around the table */
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+    margin-top: 20px; 
+    background-color: #f0f8ff; 
+    border-radius: 15px; 
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); 
   }
   
   .table {
-    width: 100%; /* Full width */
-    text-align: center; /* Center align text */
-    border-collapse: collapse; /* Collapse borders */
+    width: 100%; 
+    text-align: center; 
+    border-collapse: collapse; 
   }
   
   .table th, .table td {
-    padding: 10px; /* Padding in cells */
-    border: 1px solid #ddd; /* Border for cells */
+    padding: 10px; 
+    border: 1px solid #ddd; 
   }
   
   .table th {
-    background-color: #ffffff; /* Lighter blue for headers */
-    color: #333; /* Dark text for contrast */
+    background-color: #ffffff; 
+    color: #333; 
   }
   
   .table-striped tbody tr:nth-of-type(odd) {
-    background-color: #ffffff; /* White background for odd rows */
+    background-color: #ffffff;
   }
   
   .table-hover tbody tr:hover {
-    background-color: #d1e7fd; /* Light blue background on hover */
+    background-color: #d1e7fd; 
   }

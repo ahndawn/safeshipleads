@@ -12,7 +12,7 @@ const Login = () => {
   const [message, setMessage] = useState(null);
   const [isError, setIsError] = useState(false);
   const navigate = useNavigate();
-  const { updateAuth } = useContext(AuthContext); // Use the context
+  const { updateAuth } = useContext(AuthContext); 
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });

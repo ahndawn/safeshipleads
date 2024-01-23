@@ -5,7 +5,7 @@ import './VendorHome.css';
 import { AuthContext } from '../../services/AuthContext';
 import { Pagination } from 'react-bootstrap'; 
 
-const VendorHome = () => {
+const VendorHome = ({ vendor }) => {
   const [vendorLeadsData, setVendorLeadsData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
@@ -33,10 +33,9 @@ useEffect(() => {
     }
 
     try {
-      const response = await fetch(`http://localhost:4000/api/vendors/leads`, {
-        headers: {
-          'Authorization': `Bearer ${user.token}`
-        }
+      const url = `http://localhost:4000/api/vendors/leads?vendorLabel=${encodeURIComponent(vendor)}`;
+      const response = await fetch(url, {
+        headers: { 'Authorization': `Bearer ${user.token}` }
       });
       const data = await response.json();
       const sortedData = data.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
@@ -49,7 +48,7 @@ useEffect(() => {
   };
 
   fetchVendorLeads();
-}, []);
+}, [vendor]);
 
 useEffect(() => {
   if (vendorLeadsData.length > 0) {
@@ -139,7 +138,7 @@ const paginate = pageNumber => setCurrentPage(pageNumber);
       );
     }
   
-    return null; // Return null if data is not ready
+    return null;
   };
 
 
@@ -201,8 +200,14 @@ for (let i = startPage; i <= endPage; i++) {
 return (
   <div className="vendor-dashboard-wrapper">
     <div className="vendor-dashboard">
-      <h2>{user ? user.username : 'User'}'s Leads</h2>
-      {renderCharts()} {/* Call renderCharts here */}
+        <h2>
+          {user && user.role === 'vendor'
+            ? `${user.username}'s Leads`
+            : vendor
+            ? `${vendor}'s Leads`
+            : "User's Leads"}
+        </h2>
+      {renderCharts()}
       <div className="tables-container">
         {renderTable(currentLeads)}
       </div>
